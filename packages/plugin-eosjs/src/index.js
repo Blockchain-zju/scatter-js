@@ -8,12 +8,14 @@ import {
 } from 'scatterjs-core';
 
 let apiService = null;
+let kylinChainID = null;
 // check the current page is in iframe or not
 if (window.self == window.top) {
   // not in iframe
   apiService = SocketService;
 } else {
   apiService = IframeService;
+  kylinChainID = '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191'
 }
 
 const proxy = (dummy, handler) => new Proxy(dummy, handler);
@@ -49,7 +51,7 @@ export default class ScatterEOS extends Plugin {
 
       network = Network.fromJson(network);
 
-      const chainId = network.hasOwnProperty('chainId') && network.chainId.length ? network.chainId : _options.chainId;
+      const chainId = kylinChainID || network.hasOwnProperty('chainId') && network.chainId.length ? network.chainId : _options.chainId;
 
       let prov, proxyProvider = async (args) => prov(args);
       return proxy(_eos({httpEndpoint: network.fullhost(), chainId, signProvider: proxyProvider}), {

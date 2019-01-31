@@ -2,9 +2,10 @@ import StorageService from './StorageService'
 import getRandomValues from 'get-random-values';
 import createHash from 'create-hash';
 
-let iframe = window.parent;
+let iframe = parent;
 let paired = false;
 
+let connected = false;
 let plugin;
 let openRequests = [];
 
@@ -69,8 +70,102 @@ export default class IframeService {
     delete eventHandlers[key];
   }
 
+  static link() {
+    if (connected) return;
+    return new Promise(async (resolve, reject) => {
+
+      // socket.onmessage = msg => {
+      //   // Handshaking/Upgrading
+      //   if (msg.data.indexOf('42/scatter') === -1) return false;
+      //
+      //
+      //   // Real message
+      //   const [type, data] = JSON.parse(msg.data.replace('42/scatter,', ''));
+      //
+      //   switch (type) {
+      //     case 'paired':
+      //       return msg_paired(data);
+      //     case 'rekey':
+      //       return msg_rekey();
+      //     case 'api':
+      //       return msg_api(data);
+      //     case 'event':
+      //       return event_api(data);
+      //   }
+      // };
+
+      window.addEventListener('message', ev => {
+        if (!ev.data.protocol || ev.data.protocol.indexOf('42/scatter') === -1) return false;
+
+        // Real message
+        // const [type, data] = JSON.parse(msg.data.replace('42/scatter,', ''));
+        const {type, data} = ev.data;
+        console.log(ev.data);
+
+        switch (type) {
+          case 'paired':
+            return msg_paired(data);
+          case 'rekey':
+            return msg_rekey();
+          case 'api':
+            return msg_api(data);
+          case 'event':
+            return event_api(data);
+        }
+      })
+
+
+      const msg_paired = result => {
+        console.log('pair', result);
+        paired = result;
+
+        if (paired) {
+          const savedKey = StorageService.getAppKey();
+          const hashed = appkey.indexOf('appkey:') > -1 ? sha256(appkey) : appkey;
+
+          if (!savedKey || savedKey !== hashed) {
+            StorageService.setAppKey(hashed);
+            appkey = StorageService.getAppKey();
+          }
+        }
+
+        pairingPromise.resolve(result);
+      };
+
+      const msg_rekey = () => {
+        appkey = 'appkey:' + random();
+        send('rekeyed', {data: {appkey, origin: getOrigin()}, plugin});
+      };
+
+      const msg_api = response => {
+        const openRequest = openRequests.find(x => x.id === response.id);
+        if (!openRequest) return;
+
+        openRequests = openRequests.filter(x => x.id !== response.id);
+
+        const isErrorResponse = typeof response.result === 'object'
+          && response.result !== null
+          && response.result.hasOwnProperty('isError');
+
+        if (isErrorResponse) openRequest.reject(response.result);
+        else openRequest.resolve(response.result);
+      };
+
+      const event_api = ({event, payload}) => {
+        if (Object.keys(eventHandlers).length) Object.keys(eventHandlers).map(key => {
+          eventHandlers[key](event, payload);
+        });
+      };
+
+      connected = true;
+      pair(true).then(() => {
+        resolve(true);
+      });
+    });
+  }
+
   static isConnected() {
-    return true;
+    return connected;
   }
 
   static isPaired() {
@@ -113,7 +208,8 @@ export default class IframeService {
           request.payload.origin = getOrigin();
 
 
-        openRequests.push(Object.assign(request, {resolve, reject}));
+        openRequests.push(Object.assign({}, request, {resolve, reject}));
+        request = JSON.parse(JSON.stringify(request));
         send('api', {data: request, plugin})
       })
     });

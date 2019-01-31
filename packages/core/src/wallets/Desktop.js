@@ -30,16 +30,11 @@ export default class Desktop extends Plugin {
 
       // Tries to set up Desktop Connection
       apiService.init(pluginName, options.linkTimeout);
-      if (apiService === SocketService) {
-        apiService.link().then(async authenticated => {
-          if (!authenticated) return false;
-          this.holderFns.get().isExtension = false;
-          return resolve(true);
-        });
-      } else {
+      apiService.link().then(async authenticated => {
+        if (!authenticated) return false;
         this.holderFns.get().isExtension = false;
-        resolve(true);
-      }
+        return resolve(true);
+      });
     })
   }
 
