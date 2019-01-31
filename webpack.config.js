@@ -18,7 +18,7 @@ module.exports = {
   entry,
   output: {
     path: path.resolve(__dirname, './bundles'),
-    filename: 'scatterjs-[name]'
+    filename: 'zjubca-scatterjs-[name]'
   },
   resolve: {
     modules: [
