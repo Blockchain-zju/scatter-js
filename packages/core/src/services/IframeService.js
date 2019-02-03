@@ -100,7 +100,6 @@ export default class IframeService {
         // Real message
         // const [type, data] = JSON.parse(msg.data.replace('42/scatter,', ''));
         const {type, data} = ev.data;
-        console.log(ev.data);
 
         switch (type) {
           case 'paired':
@@ -116,7 +115,7 @@ export default class IframeService {
 
 
       const msg_paired = result => {
-        console.log('pair', result);
+        // console.log('pair', result);
         paired = result;
 
         if (paired) {
