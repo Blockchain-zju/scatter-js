@@ -5,7 +5,7 @@ import {
   Network,
   SocketService,
   IframeService
-} from 'scatterjs-core';
+} from 'zjubca-scatterjs-core';
 
 let apiService = null;
 // check the current page is in iframe or not
@@ -14,7 +14,8 @@ if (window.self == window.top) {
   apiService = SocketService;
 } else {
   apiService = IframeService;
-}const proxy = (dummy, handler) => new Proxy(dummy, handler);
+}
+const proxy = (dummy, handler) => new Proxy(dummy, handler);
 let cache = {};
 
 export default class ScatterEOS extends Plugin {

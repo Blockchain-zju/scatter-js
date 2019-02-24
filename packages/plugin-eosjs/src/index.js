@@ -5,7 +5,7 @@ import {
   Network,
   SocketService,
   IframeService
-} from 'scatterjs-core';
+} from 'zjubca-scatterjs-core';
 
 let apiService = null;
 let kylinChainID = null;

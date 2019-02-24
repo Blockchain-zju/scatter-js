@@ -1,6 +1,6 @@
 {
 	"name": "zjubca-scatterjs-plugin-eosjs",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"main": "dist/index.js",
 	"license": "MIT",
 	"gitHead": "9c623a415805c4b7a336882ce8bc4571818ce370"
