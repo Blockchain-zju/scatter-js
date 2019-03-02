@@ -1,4 +1,4 @@
-# Scatter JS
+# ZJUBCA Scatter JS
 
 | type | version | package |
 | ---- | ------- | ------- |
